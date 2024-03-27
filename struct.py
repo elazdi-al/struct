@@ -1,30 +1,32 @@
 import os
-import sys
 import argparse
 
 def print_tree(directory, prefix='', extensions=None):
     """
-    Print the directory tree structure for files matching the given extensions.
+    Print the directory tree structure. Only include files matching the given extensions.
     """
-    files = sorted(os.listdir(directory))
-    for i, file in enumerate(files):
-        path = os.path.join(directory, file)
-        if extensions and not file.split('.')[-1] in extensions:
-            continue  # Skip files not in the specified extensions
-        is_last = i == (len(files) - 1) - sum(not file.split('.')[-1] in extensions for file in files[i:])
-        print(prefix + ('└── ' if is_last else '├── ') + file)
+    # Sort directory contents by name
+    entries = sorted(os.listdir(directory))
+    filtered_entries = [e for e in entries if os.path.isdir(os.path.join(directory, e)) or
+                        any(e.endswith('.' + ext) for ext in extensions)] if extensions else entries
+    
+    for i, entry in enumerate(filtered_entries):
+        path = os.path.join(directory, entry)
+        is_last = i == (len(filtered_entries) - 1)
+        marker = '└── ' if is_last else '├── '
+        print(prefix + marker + entry)
         if os.path.isdir(path):
             extend_prefix = '    ' if is_last else '│   '
             print_tree(path, prefix=prefix+extend_prefix, extensions=extensions)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Visualize directory structure with optional file extension filtering.')
-    parser.add_argument('directory', nargs='?', default=os.getcwd(), help='Directory path to visualize')
-    parser.add_argument('-e', '--extensions', help='Comma-separated list of file extensions to include (e.g., tsx,ts,js)', default=None)
+    parser = argparse.ArgumentParser(description="Visualize directory structure with optional file extension filtering.")
+    parser.add_argument('directory', nargs='?', default=os.getcwd(), help="Directory path to visualize.")
+    parser.add_argument('-e', '--extensions', help="Comma-separated list of file extensions to include (e.g., tsx,ts,js).", default='')
     args = parser.parse_args()
 
-    # Split extensions into a list if provided
-    extensions = args.extensions.split(',') if args.extensions else None
-    
+    # Prepare extensions list
+    extensions = args.extensions.split(',') if args.extensions else []
+
     print(args.directory)
     print_tree(args.directory, extensions=extensions)
