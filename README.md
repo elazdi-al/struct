@@ -41,4 +41,11 @@ To use the Directory Structure Visualizer, follow these steps depending on your 
 ## Example
 
 ```bash
-$ struct
+$ struct -e tsx,ts
+
+├── layout.tsx
+├── login
+│   └── page.tsx
+├── page.tsx
+└── signup
+    └── page.tsx
